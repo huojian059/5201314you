@@ -5,7 +5,6 @@ let yesButton = document.getElementById("yes");
 let noButton = document.getElementById("no");
 let questionText = document.getElementById("question");
 let mainImage = document.getElementById("mainImage");
-// 如果页面中存在容器，可用它来包裹主要内容（本示例中我们后续会重建一个容器）
 let container = document.querySelector(".container");
 
 // 2. 获取 URL 参数中的 name（如果需要带上用户名）
@@ -68,7 +67,7 @@ const loveText = `!!!我喜欢你!! ( >᎑<)♡︎ᐝ  ${
   username ? safeUsername + " ♡︎ᐝ(>᎑< )" : ""
 }`;
 
-// 点击 Yes 后：显示表白成功页面、播放音乐，并在5秒后进行柔和渐变切换到 animation.html
+// 点击 Yes 后：显示表白成功页面、播放音乐，并在5秒后柔和渐变切换到 animation.html
 yesButton.addEventListener("click", function () {
   // 创建或获取音乐元素，确保音乐持续播放
   let loveAudio = document.getElementById("love-audio");
@@ -82,9 +81,19 @@ yesButton.addEventListener("click", function () {
     loveAudio.play();
   }
 
+  // 设置 body 的 margin 和 padding 为0，确保全屏显示
+  document.body.style.margin = "0";
+  document.body.style.padding = "0";
+
   // 创建一个新的内容容器，用于显示表白成功页面及后续加载的动画页面
   let contentWrapper = document.createElement("div");
   contentWrapper.id = "content";
+  // 设置全屏固定定位，确保在手机上无边隙显示
+  contentWrapper.style.position = "fixed";
+  contentWrapper.style.top = "0";
+  contentWrapper.style.left = "0";
+  contentWrapper.style.width = "100vw";
+  contentWrapper.style.height = "100vh";
   contentWrapper.style.opacity = "1"; // 初始状态完全显示
   contentWrapper.style.transition = "opacity 1s ease";
   contentWrapper.innerHTML = `
@@ -109,7 +118,7 @@ yesButton.addEventListener("click", function () {
     // 等待1秒（渐变时间），再更换内容
     setTimeout(function () {
       contentWrapper.innerHTML = `
-        <iframe src="animation.html" style="width:100%; height:100vh; border:none;"></iframe>
+        <iframe src="animation.html" style="position:fixed; top:0; left:0; width:100vw; height:100vh; border:none; margin:0; padding:0;"></iframe>
       `;
       // 更换内容后，先保持隐藏，再淡入显示
       contentWrapper.style.opacity = "0";
