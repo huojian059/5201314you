@@ -1,44 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>粉色爱心粒子效果</title>
-  <!-- 保留鼠标滑动和点击爱心效果（外部文件） -->
+  <title>流星雨、心跳与粉色爱心效果</title>
+  <!-- 保留鼠标滑动和点击爱心效果 -->
   <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/mouse_slide.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/clicklove.js"></script>
   <style>
-    /* 渐变背景层，始终处于最底层 */
-    .background-layer {
+    /* 流星雨效果 CSS */
+    @-webkit-keyframes star-opacity {
+      0% { opacity: 0; }
+      40% { opacity: 1; }
+      60% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @keyframes star-opacity {
+      0% { opacity: 0; }
+      40% { opacity: 1; }
+      60% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @-webkit-keyframes star-pos {
+      0% {
+        transform: scale(0) rotate(0) translate3d(0, 0, 0);
+        -webkit-transform: scale(0) rotate(0) translate3d(0, 0, 0);
+        -moz-transform: scale(0) rotate(0) translate3d(0, 0, 0);
+      }
+      100% {
+        transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+        -webkit-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+        -moz-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+      }
+    }
+    @keyframes star-pos {
+      0% {
+        transform: scale(0) rotate(0) translate3d(0, 0, 0);
+        -webkit-transform: scale(0) rotate(0) translate3d(0, 0, 0);
+        -moz-transform: scale(0) rotate(0) translate3d(0, 0, 0);
+      }
+      100% {
+        transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+        -webkit-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+        -moz-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
+      }
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    /* 流星雨背景容器 */
+    .index-bg {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, #1d2b64, #f8cdda);
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%);
       z-index: -1;
-      animation: backgroundBreath 30s infinite alternate;
     }
-    @keyframes backgroundBreath {
-      0% { filter: brightness(1); }
-      100% { filter: brightness(1.2); }
+    .index-bg .stars {
+      height: 0;
     }
-
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-    }
-    /* 层级控制 */
-    #pinkboard {
-      position: absolute;
-      z-index: 3; /* 粉色粒子画布位于 fallingHeartsCanvas 之上 */
-    }
-    #fallingHeartsCanvas {
-      position: absolute;
+    .index-bg .star {
+      display: block;
+      width: 8px;           /* 调大尺寸使流星更明显 */
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      top: 100px;
+      left: 400px;
+      position: relative;
+      -webkit-transform-origin: 100% 0;
+      transform-origin: 100% 0;
+      -webkit-animation: star-opacity 5s infinite ease-in, star-pos 5s infinite ease-in;
+      animation: star-opacity 5s infinite ease-in, star-pos 5s infinite ease-in;
+      -webkit-box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.5);
+      opacity: 0;
       z-index: 2;
     }
+    .index-bg .star:after {
+      content: '';
+      display: block;
+      top: 0;
+      left: 4px;
+      border: 0 solid #fff;
+      border-width: 0 90px 2px;
+      border-color: transparent transparent transparent rgba(255, 255, 255, 0.5);
+      -webkit-transform: rotate(-45deg) translate3d(1px, 3px, 0);
+      transform: rotate(-45deg) translate3d(1px, 3px, 0);
+      -webkit-box-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2);
+      -webkit-transform-origin: 0% 100%;
+      transform-origin: 0% 100%;
+    }
+    
+    /* 粉色爱心粒子画布（heart）——加入心跳动画 */
+    #pinkboard {
+      position: absolute;
+      z-index: 3;
+      animation: jump 1s infinite ease-out;
+    }
+    @keyframes jump {
+      0% { transform: scale(1); }
+      40% { transform: scale(0.9); }
+      60% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    
+    /* 居中文字 */
     .namebox {
       position: absolute;
       top: 50%;
@@ -52,29 +125,39 @@
   </style>
 </head>
 <body>
-  <!-- 渐变背景 -->
-  <div class="background-layer"></div>
-  <!-- 粉色爱心粒子画布 -->
+  <!-- 流星雨背景 -->
+  <div class="index-bg">
+    <div class="stars">
+      <div class="star"></div>
+      <div class="star" style="top: 80px; left: 800px; animation-delay: 3s;"></div>
+      <div class="star" style="top: 40px; left: 646px; animation-delay: 2s;"></div>
+      <div class="star" style="top: 120px; left: 395px; animation-delay: 4s;"></div>
+      <div class="star" style="top: 160px; left: 765px; animation-delay: 1s;"></div>
+      <div class="star" style="top: 170px; left: 1200px; animation-delay: 2s;"></div>
+      <div class="star" style="top: 200px; left: 1000px; animation-delay: 1s;"></div>
+    </div>
+  </div>
+  
+  <!-- 粉色爱心粒子画布（带心跳效果） -->
   <canvas id="pinkboard"></canvas>
-  <!-- 居中文字 -->
+  <!-- 居中显示文字 -->
   <div class="namebox">
     <h1>XX&#10084;&#65039;XXX</h1>
   </div>
   
-  <!-- 主爱心粒子系统 -->
+  <!-- 主爱心粒子系统脚本 -->
   <script>
-    // 配置参数
     var settings = {
       particles: {
         length: 500,      // 粒子数量
         duration: 2,      // 粒子存活时间（秒）
         velocity: 100,    // 初始速度
-        effect: -0.75,    // 加速度系数（产生缓动效果）
-        size: 30          // 基础粒子大小（后续随生命周期变化）
+        effect: -0.75,    // 缓动效果系数
+        size: 30          // 粒子基础大小
       }
     };
 
-    // 定义基础点类
+    // 基础点类
     var Point = function(x, y) {
       this.x = x || 0;
       this.y = y || 0;
@@ -97,9 +180,7 @@
       return this;
     };
 
-    // 生成心形路径的函数
-    // 公式：x = 160*sin³(t)
-    //      y = 130*cos(t) - 50*cos(2t) - 20*cos(3t) - 10*cos(4t) + 25
+    // 计算心形曲线上的点（-π ≤ t ≤ π）
     function pointOnHeart(t) {
       return new Point(
         160 * Math.pow(Math.sin(t), 3),
@@ -107,13 +188,12 @@
       );
     }
 
-    // 粒子类，绘制时根据生命周期做缓动缩放、淡出，同时动态调整颜色
+    // 粒子类
     var Particle = function() {
       this.position = new Point();
       this.velocity = new Point();
       this.acceleration = new Point();
       this.age = 0;
-      // 初始颜色仅作占位
       this.color = "#ff30c5";
     };
     Particle.prototype.initialize = function(x, y, dx, dy) {
@@ -121,7 +201,6 @@
       this.position.y = y;
       this.velocity.x = dx;
       this.velocity.y = dy;
-      // 根据初始速度计算加速度，实现缓动效果
       this.acceleration.x = dx * settings.particles.effect;
       this.acceleration.y = dy * settings.particles.effect;
       this.age = 0;
@@ -133,36 +212,31 @@
       this.velocity.y += this.acceleration.y * deltaTime;
       this.age += deltaTime;
     };
-    // 绘制时根据生命周期做缓动缩放和淡出，同时动态调整颜色
     Particle.prototype.draw = function(ctx) {
-      // 缓动函数（ease-out）
       function ease(t) {
         return (--t) * t * t + 1;
       }
       var progress = this.age / settings.particles.duration;
       var scale = ease(progress);
-      // 粒子大小随生命周期变化
       var size = settings.particles.size * scale;
-      // 透明度淡出
       ctx.globalAlpha = 1 - progress;
       
-      // 根据进度动态调整颜色：保持基调为粉色（Hue 330），光度随进度增加
+      // 动态调整颜色
       var hue = 330;
       var saturation = 80;
       var lightness = 60 + 10 * progress;
       ctx.fillStyle = "hsl(" + hue + ", " + saturation + "%, " + lightness + "%)";
-
+      
       ctx.save();
       ctx.translate(this.position.x, this.position.y);
       ctx.scale(scale, scale);
-
-      // 绘制心形路径，居中绘制
+      
       var s = settings.particles.size;
       function toCentered(t) {
         var p = pointOnHeart(t);
         return {
-          x: (s / 2 + p.x * s / 350) - s / 2,
-          y: (s / 2 - p.y * s / 350) - s / 2
+          x: (s/2 + p.x * s/350) - s/2,
+          y: (s/2 - p.y * s/350) - s/2
         };
       }
       ctx.beginPath();
@@ -179,7 +253,7 @@
       ctx.restore();
     };
 
-    // 粒子池，优化性能：循环使用固定数量的粒子对象
+    // 粒子池（循环复用粒子对象）
     var ParticlePool = function(length) {
       this.particles = new Array(length);
       for (var i = 0; i < length; i++) {
@@ -202,7 +276,6 @@
     };
     ParticlePool.prototype.update = function(deltaTime) {
       var p = this.particles;
-      // 更新所有活跃粒子
       if (this.firstActive < this.firstFree) {
         for (var i = this.firstActive; i < this.firstFree; i++) {
           p[i].update(deltaTime);
@@ -215,7 +288,6 @@
           p[i].update(deltaTime);
         }
       }
-      // 回收生命周期结束的粒子
       while (p[this.firstActive].age >= this.duration && this.firstActive !== this.firstFree) {
         this.firstActive++;
         if (this.firstActive === this.poolLength)
@@ -238,35 +310,27 @@
       }
     };
 
-    // 主渲染函数
     (function(canvas) {
       var ctx = canvas.getContext("2d");
       var pool = new ParticlePool(settings.particles.length);
       var particleRate = settings.particles.length / settings.particles.duration;
       var time;
-
-      // 每帧生成一定数量的粒子，粒子起始位置在画布中心沿心形轨迹偏移
       function render() {
         requestAnimationFrame(render);
         var now = Date.now() / 1000;
         var deltaTime = now - (time || now);
         time = now;
-        // 清除整个画布
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // 根据时间间隔生成粒子
         var count = particleRate * deltaTime;
         for (var i = 0; i < count; i++) {
-          // t 取值范围 [-π, π]
           var t = Math.PI - 2 * Math.PI * Math.random();
           var pos = pointOnHeart(t);
           var dir = pos.clone().length(settings.particles.velocity);
-          // 将心形曲线偏移到画布中心
           pool.add(canvas.width/2 + pos.x, canvas.height/2 - pos.y, dir.x, -dir.y);
         }
         pool.update(deltaTime);
         pool.draw(ctx);
       }
-
       function onResize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -276,10 +340,9 @@
       setTimeout(render, 10);
     })(document.getElementById("pinkboard"));
   </script>
-
-  <!-- 七彩小心心雨动画（完整保留，去掉绿色） -->
+  
+  <!-- 七彩小心心雨动画 -->
   <script>
-    // 定义一个辅助函数，用于生成随机色相（排除绿色：90～150 度）
     function getRandomHueExcludingGreen() {
       var hue;
       do {
@@ -296,6 +359,7 @@
       heartsCanvas.style.width = "100%";
       heartsCanvas.style.height = "100%";
       heartsCanvas.style.pointerEvents = "none";
+      heartsCanvas.style.zIndex = "2";
       document.body.appendChild(heartsCanvas);
 
       var ctx = heartsCanvas.getContext("2d");
