@@ -2,13 +2,40 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 关键：viewport-fit=cover + 禁用缩放，避免 iOS Safari 地址栏干扰 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>流星雨、心跳与粉色爱心效果</title>
   <!-- 保留鼠标滑动和点击爱心效果 -->
   <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/mouse_slide.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/clicklove.js"></script>
   <style>
-    /* 流星雨效果 CSS */
+    /* 通用重置，禁用滚动条 */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* 背景容器：流星雨 */
+    .index-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      /* 先写常规 100vh */
+      min-height: 100vh;
+      /* iOS Safari 修复 100vh 的写法 */
+      @supports (-webkit-touch-callout: none) {
+        min-height: -webkit-fill-available;
+      }
+      background: linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%);
+      z-index: -1;
+    }
+    .index-bg .stars {
+      height: 0;
+    }
+
+    /* 流星雨动画关键帧 */
     @-webkit-keyframes star-opacity {
       0% { opacity: 0; }
       40% { opacity: 1; }
@@ -24,60 +51,32 @@
     @-webkit-keyframes star-pos {
       0% {
         transform: scale(0) rotate(0) translate3d(0, 0, 0);
-        -webkit-transform: scale(0) rotate(0) translate3d(0, 0, 0);
-        -moz-transform: scale(0) rotate(0) translate3d(0, 0, 0);
       }
       100% {
         transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
-        -webkit-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
-        -moz-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
       }
     }
     @keyframes star-pos {
       0% {
         transform: scale(0) rotate(0) translate3d(0, 0, 0);
-        -webkit-transform: scale(0) rotate(0) translate3d(0, 0, 0);
-        -moz-transform: scale(0) rotate(0) translate3d(0, 0, 0);
       }
       100% {
         transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
-        -webkit-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
-        -moz-transform: scale(1) rotate(0) translate3d(-450px, 450px, 0);
       }
     }
-    
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    /* 流星雨背景容器 */
-    .index-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%);
-      z-index: -1;
-    }
-    .index-bg .stars {
-      height: 0;
-    }
+
+    /* 流星 */
     .index-bg .star {
       display: block;
-      width: 8px;           /* 调大尺寸使流星更明显 */
+      width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #fff;
       top: 100px;
       left: 400px;
       position: relative;
-      -webkit-transform-origin: 100% 0;
       transform-origin: 100% 0;
-      -webkit-animation: star-opacity 5s infinite ease-in, star-pos 5s infinite ease-in;
       animation: star-opacity 5s infinite ease-in, star-pos 5s infinite ease-in;
-      -webkit-box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.5);
       box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.5);
       opacity: 0;
       z-index: 2;
@@ -90,17 +89,19 @@
       border: 0 solid #fff;
       border-width: 0 90px 2px;
       border-color: transparent transparent transparent rgba(255, 255, 255, 0.5);
-      -webkit-transform: rotate(-45deg) translate3d(1px, 3px, 0);
       transform: rotate(-45deg) translate3d(1px, 3px, 0);
-      -webkit-box-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2);
       box-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2);
-      -webkit-transform-origin: 0% 100%;
       transform-origin: 0% 100%;
     }
-    
-    /* 粉色爱心粒子画布（heart）——加入心跳动画 */
+
+    /* 粉色爱心粒子画布（带心跳动画） */
     #pinkboard {
-      position: absolute;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      /* iOS Safari 修复 */
+      @supports (-webkit-touch-callout: none) {
+        height: -webkit-fill-available;
+      }
       z-index: 3;
       animation: jump 1s infinite ease-out;
     }
@@ -110,22 +111,27 @@
       60% { transform: scale(0.95); }
       100% { transform: scale(1); }
     }
-    
-    /* 居中文字 */
+
+    /* 居中文字（含字体大小） */
     .namebox {
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 4;
       pointer-events: none;
       color: #fff;
       text-shadow: 0 0 10px rgba(255,255,255,0.5);
+      font-size: 1.2em; /* 基础字号(可调小或调大) */
+      z-index: 4;
+    }
+    /* 关键：强制不换行，避免手机拆分两行 */
+    .namebox h1 {
+      white-space: nowrap;
+      margin: 0; /* 去掉默认 margin，避免多余空隙 */
     }
   </style>
 </head>
 <body>
-  <!-- 流星雨背景 -->
+  <!-- 流星雨背景容器 -->
   <div class="index-bg">
     <div class="stars">
       <div class="star"></div>
@@ -138,8 +144,9 @@
     </div>
   </div>
   
-  <!-- 粉色爱心粒子画布（带心跳效果） -->
+  <!-- 粉色爱心粒子画布 -->
   <canvas id="pinkboard"></canvas>
+
   <!-- 居中显示文字 -->
   <div class="namebox">
     <h1>XX&#10084;&#65039;XXX</h1>
@@ -147,15 +154,32 @@
   
   <!-- 主爱心粒子系统脚本 -->
   <script>
+    /*
+     * 若希望文字与心形等比例缩放，可以保持与心形相同的参数
+     * 如果想让文字更小，可在下方 JS 里做额外乘法，比如 scale * 0.5
+     */
     var settings = {
       particles: {
         length: 500,      // 粒子数量
         duration: 2,      // 粒子存活时间（秒）
-        velocity: 100,    // 初始速度
-        effect: -0.75,    // 缓动效果系数
-        size: 30          // 粒子基础大小
+        velocity: 50,     // 初始速度
+        effect: -0.5,     // 缓动系数
+        size: 25          // 粒子基础大小
       }
     };
+
+    // 心形曲线大致是 320×220
+    var HEART_WIDTH = 320;
+    var HEART_HEIGHT = 220;
+
+    // 只缩小，不无限放大
+    function getSpawnScale() {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      var scaleCandidate = 0.9 * Math.min(w / HEART_WIDTH, h / HEART_HEIGHT);
+      // 限制最大放大倍数（1.0 表示不超过原始大小）
+      return Math.min(scaleCandidate, 1.0);
+    }
 
     // 基础点类
     var Point = function(x, y) {
@@ -180,7 +204,7 @@
       return this;
     };
 
-    // 计算心形曲线上的点（-π ≤ t ≤ π）
+    // 心形曲线
     function pointOnHeart(t) {
       return new Point(
         160 * Math.pow(Math.sin(t), 3),
@@ -194,7 +218,6 @@
       this.velocity = new Point();
       this.acceleration = new Point();
       this.age = 0;
-      this.color = "#ff30c5";
     };
     Particle.prototype.initialize = function(x, y, dx, dy) {
       this.position.x = x;
@@ -218,10 +241,8 @@
       }
       var progress = this.age / settings.particles.duration;
       var scale = ease(progress);
-      var size = settings.particles.size * scale;
       ctx.globalAlpha = 1 - progress;
-      
-      // 动态调整颜色
+
       var hue = 330;
       var saturation = 80;
       var lightness = 60 + 10 * progress;
@@ -253,7 +274,7 @@
       ctx.restore();
     };
 
-    // 粒子池（循环复用粒子对象）
+    // 粒子池
     var ParticlePool = function(length) {
       this.particles = new Array(length);
       for (var i = 0; i < length; i++) {
@@ -310,33 +331,66 @@
       }
     };
 
+    // ================
+    // = 文字缩放逻辑 =
+    // ================
+    function updateTextScale() {
+      let scale = getSpawnScale();  // 0 ~ 1.0
+      // 若想让文字更小，再乘一个系数
+      scale = scale * 0.6; // 0.6 值可再调小/大
+
+      const namebox = document.querySelector('.namebox');
+      // 居中 + 缩放
+      namebox.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
     (function(canvas) {
       var ctx = canvas.getContext("2d");
       var pool = new ParticlePool(settings.particles.length);
       var particleRate = settings.particles.length / settings.particles.duration;
       var time;
+
       function render() {
         requestAnimationFrame(render);
         var now = Date.now() / 1000;
         var deltaTime = now - (time || now);
         time = now;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         var count = particleRate * deltaTime;
+        var scaleSpawn = getSpawnScale();
         for (var i = 0; i < count; i++) {
           var t = Math.PI - 2 * Math.PI * Math.random();
           var pos = pointOnHeart(t);
-          var dir = pos.clone().length(settings.particles.velocity);
-          pool.add(canvas.width/2 + pos.x, canvas.height/2 - pos.y, dir.x, -dir.y);
+          pos.x *= scaleSpawn;
+          pos.y *= scaleSpawn;
+          var dir = pos.clone().length(settings.particles.velocity * scaleSpawn);
+          pool.add(
+            window.innerWidth / 2 + pos.x,
+            window.innerHeight / 2 - pos.y,
+            dir.x,
+            -dir.y
+          );
         }
         pool.update(deltaTime);
         pool.draw(ctx);
       }
+
+      // Retina 适配 & 调整文字大小
       function onResize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // 同步调整文字缩放
+        updateTextScale();
       }
       window.addEventListener("resize", onResize);
       onResize();
+
       setTimeout(render, 10);
     })(document.getElementById("pinkboard"));
   </script>
@@ -353,46 +407,47 @@
     (function() {
       var heartsCanvas = document.createElement("canvas");
       heartsCanvas.id = "fallingHeartsCanvas";
-      heartsCanvas.style.position = "absolute";
+      heartsCanvas.style.position = "fixed";
       heartsCanvas.style.top = "0";
       heartsCanvas.style.left = "0";
       heartsCanvas.style.width = "100%";
       heartsCanvas.style.height = "100%";
       heartsCanvas.style.pointerEvents = "none";
       heartsCanvas.style.zIndex = "2";
+      heartsCanvas.style.setProperty("height", "-webkit-fill-available", "important");
       document.body.appendChild(heartsCanvas);
 
       var ctx = heartsCanvas.getContext("2d");
       function resizeHeartsCanvas() {
-        heartsCanvas.width = window.innerWidth;
-        heartsCanvas.height = window.innerHeight;
+        var dpr = window.devicePixelRatio || 1;
+        heartsCanvas.width = window.innerWidth * dpr;
+        heartsCanvas.height = window.innerHeight * dpr;
+        heartsCanvas.style.width = window.innerWidth + "px";
+        heartsCanvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
       window.addEventListener("resize", resizeHeartsCanvas);
       resizeHeartsCanvas();
 
       function FallingHeart() {
-        this.x = Math.random() * heartsCanvas.width;
-        this.y = -Math.random() * heartsCanvas.height;
+        this.reset();
+      }
+      FallingHeart.prototype.reset = function() {
+        this.x = Math.random() * window.innerWidth;
+        this.y = -Math.random() * window.innerHeight;
         this.size = Math.random() * 30 + 10;
         this.speedY = Math.random() * 100 + 50;
         this.sway = (Math.random() - 0.5) * 30;
         this.rotation = Math.random() * Math.PI * 2;
         this.rotationSpeed = (Math.random() - 0.5) * 0.2;
         this.color = "hsl(" + getRandomHueExcludingGreen() + ", 80%, 60%)";
-      }
+      };
       FallingHeart.prototype.update = function(delta) {
         this.y += this.speedY * delta;
         this.x += this.sway * delta;
         this.rotation += this.rotationSpeed * delta;
-        if (this.y - this.size > heartsCanvas.height) {
-          this.y = -this.size;
-          this.x = Math.random() * heartsCanvas.width;
-          this.size = Math.random() * 30 + 10;
-          this.speedY = Math.random() * 100 + 50;
-          this.sway = (Math.random() - 0.5) * 30;
-          this.rotation = Math.random() * Math.PI * 2;
-          this.rotationSpeed = (Math.random() - 0.5) * 0.2;
-          this.color = "hsl(" + getRandomHueExcludingGreen() + ", 80%, 60%)";
+        if (this.y - this.size > window.innerHeight) {
+          this.reset();
         }
       };
       FallingHeart.prototype.draw = function(ctx) {
